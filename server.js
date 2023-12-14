@@ -4,6 +4,8 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var fs = require('fs');
 var system = require('child_process');
+var mancala = require('./mancala.js');
+var c = require('./iostream.js');
 
 var file = {
 	save: function(name,text){
@@ -47,6 +49,8 @@ app.get(/.*/,function(request,response){
 });
 
 http.listen(port,()=>{console.log('Serving Port: '+port)});
+
+mancala.print();
 
 io.on('connection',socket=>{
 	var c = new client(socket);

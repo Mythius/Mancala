@@ -1,0 +1,24 @@
+{
+  "name": "mancala",
+  "version": "1.0.0",
+  "description": "Mancala Bot",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/mythius/mancala.git"
+  },
+  "author": "Matthias Southwick",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mythius/mancala/issues"
+  },
+  "homepage": "https://github.com/mythius/mancala#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  }
+}
