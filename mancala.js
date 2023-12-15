@@ -25,6 +25,10 @@ class Mancala{
 		// console.log(this.spots.join(','));
 		// console.log(this);
 	}
+	loadPosition(pos){
+		for(let i=0;i<this.spots.length;i++) this.spots[i] = pos.spots[i];
+		this.turn = pos.turn;
+	}
 	movePieces(slotSide){
 		const THIS = this;
 		if(slotSide < 1 || slotSide > 6) return false;
@@ -182,6 +186,12 @@ class Mancala{
 }
 
 const sum=(a,b)=>a+b;
+
+exports.evaluate = function(pos,d=BOT_DEPTH){
+	let m = new Mancala;
+	m.loadPosition(pos);
+	return chooseBestMove(d);
+}
 
 exports.print = async function(){
 	let m = new Mancala;
