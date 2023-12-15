@@ -1,6 +1,6 @@
 var c = require('./iostream.js');
 const AUTOPLAY = true;
-const BOT_DEPTH = 7;
+const BOT_DEPTH = 9;
 class Mancala{
 	constructor(){
 		this.spots = [4,4,4,4,4,4,0,4,4,4,4,4,4,0]; // g1: 6, g2: 13
@@ -10,17 +10,20 @@ class Mancala{
 		this.apoints = 0;
 		this.moveMade = 0;
 		this.over = false;
+		this.moves = [];
 	}
 	printBoard(){
 		console.clear();
 		const slot1 = (String(this.spots[13])+'  ').slice(0,2);
 		const slot2 = (String(this.spots[6])+'  ').slice(0,2);
+		console.log(`Moves: `+this.moves.join(','));
 		console.log(`Player ${this.turn+1}'s Turn!`);
 		console.log(`|${slot1}|(`+this.spots.slice(7,13).reverse().join(')(')+`)|${slot2}|`)
 		console.log('|  |('+this.spots.slice(0,6).join(')(')+`)|  |`);
 		console.log('Current Eval: '+this.evaluate().diff);
 		if(!this.over) this.chooseBestMove(BOT_DEPTH,true);
-		console.log(this.spots.join(','));
+		// console.log(this.spots.join(','));
+		// console.log(this);
 	}
 	movePieces(slotSide){
 		const THIS = this;
@@ -72,14 +75,15 @@ class Mancala{
 	nextTurn(){
 		this.turn = +!this.turn;
 	}
-	makeMove(n,ap=AUTOPLAY){
+	makeMove(n,ap=true){
 		this.moveMade = n;
+		this.moves.push(n);
 		try{
 			if(this.movePieces(Number(n))){
 				this.nextTurn();
 			}
 			if(ap) this.printBoard();
-			if(this.turn == 1 && ap){
+			if(this.turn == 1 && ap && AUTOPLAY){
 				const THIS = this;
 				setTimeout(()=>{
 					if(this.getPossibleMoves().length>0) THIS.makeComputerMove.bind(THIS).call();
@@ -165,15 +169,13 @@ class Mancala{
 	}
 	chooseBestMove(depth=1,log=false){
 		this.branches = [];
-		if(this.branches.length==0){
-			let branch = this.generateBranches(depth,false);
-			if(log) console.log(`Best Move: ${branch.moveMade} (${branch.apoints})`)
-			return branch.moveMade;
-		} 
+		let branch = this.generateBranches(depth,false);
+		if(log) console.log(`Best Move: ${branch.moveMade} (${branch.apoints})`)
+		return branch.moveMade;
 	}
 	clone(){
 		let nm = new Mancala;
-		for(let i=0;i<this.spots;i++) nm.spots[i] = this.spots[i];
+		for(let i=0;i<this.spots.length;i++) nm.spots[i] = this.spots[i];
 		nm.turn = this.turn;
 		return nm;
 	}
