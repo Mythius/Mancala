@@ -5,7 +5,6 @@ var io = require('socket.io')(http);
 var fs = require('fs');
 var system = require('child_process');
 var mancala = require('./mancala.js');
-var c = require('./iostream.js');
 
 var file = {
 	save: function(name,text){

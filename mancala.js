@@ -1,9 +1,15 @@
 var c = require('./iostream.js');
 const AUTOPLAY = true;
+const BOT_DEPTH = 7;
 class Mancala{
 	constructor(){
 		this.spots = [4,4,4,4,4,4,0,4,4,4,4,4,4,0]; // g1: 6, g2: 13
+		// this.spots = [5,4,0,5,5,0,2,5,5,0,6,5,5,1];
 		this.turn = 0;
+		this.branches = [];
+		this.apoints = 0;
+		this.moveMade = 0;
+		this.over = false;
 	}
 	printBoard(){
 		console.clear();
@@ -12,6 +18,9 @@ class Mancala{
 		console.log(`Player ${this.turn+1}'s Turn!`);
 		console.log(`|${slot1}|(`+this.spots.slice(7,13).reverse().join(')(')+`)|${slot2}|`)
 		console.log('|  |('+this.spots.slice(0,6).join(')(')+`)|  |`);
+		console.log('Current Eval: '+this.evaluate().diff);
+		if(!this.over) this.chooseBestMove(BOT_DEPTH,true);
+		console.log(this.spots.join(','));
 	}
 	movePieces(slotSide){
 		const THIS = this;
@@ -25,8 +34,6 @@ class Mancala{
 			this.spots[ix]++;
 			temp--;
 		}
-		if(ix==6&&this.turn==0) return false;
-		if(ix==13&&this.turn==1) return false;
 		if(this.turn==0&&ix<6&&this.spots[ix]==1){
 			let stealIx = 12-ix;
 			if(this.spots[stealIx]>0){
@@ -52,6 +59,8 @@ class Mancala{
 			for(let i=7;i<13;i++) this.spots[i]=0;
 			throw 'Game Over';
 		}
+		if(ix==6&&this.turn==0) return false;
+		if(ix==13&&this.turn==1) return false;
 		return true;
 		function nextSpot(){
 			ix++;
@@ -63,22 +72,23 @@ class Mancala{
 	nextTurn(){
 		this.turn = +!this.turn;
 	}
-	makeMove(n){
+	makeMove(n,ap=AUTOPLAY){
+		this.moveMade = n;
 		try{
 			if(this.movePieces(Number(n))){
 				this.nextTurn();
 			}
-			this.printBoard();
-			if(this.turn == 1 && AUTOPLAY){
+			if(ap) this.printBoard();
+			if(this.turn == 1 && ap){
 				const THIS = this;
 				setTimeout(()=>{
-					THIS.makeRandomMove.bind(THIS).call();
+					if(this.getPossibleMoves().length>0) THIS.makeComputerMove.bind(THIS).call();
 				},500);
 			}
 
 		} catch(e){
 			if(typeof e == 'string'){
-				this.printBoard();
+				this.over = true;
 				return true;
 			} else {
 				throw e;
@@ -93,7 +103,7 @@ class Mancala{
 		return {
 			p1: s1,
 			p2: s2,
-			diff: s2-s2,
+			diff: s1-s2,
 			winning: w
 		}
 	}
@@ -114,10 +124,58 @@ class Mancala{
 		}
 		this.makeMove(pos[0]);
 	}
+	makeComputerMove(){
+		if(this.getPossibleMoves().length>0){
+			this.makeMove(this.chooseBestMove(BOT_DEPTH));
+		} else {
+			throw 'Game Over';
+		}
+	}
 	end(){
 		this.printBoard();
 		console.log('Game Over!');
 		console.log(this.evaluate().winning+' won!');
+	}
+	generateBranches(depth=1,log=false){
+		if(depth==0){
+			this.apoints = this.evaluate().diff;
+			return this;
+		}
+		for(let pos of this.getPossibleMoves()){
+			let ng = this.clone();
+			ng.makeMove(pos,false);
+			ng.generateBranches(depth-1,log);
+			this.branches.push(ng);
+		}
+		this.branches.sort((a,b)=>b.apoints-a.apoints);
+		if(this.branches.length==0){
+			this.apoints = this.evaluate().diff;
+			return this;
+		} else {
+			if(this.turn == 0){
+				this.apoints = this.branches[0].apoints;
+				if(log) console.log('DEPTH: '+depth+', CHOICE:'+this.branches[0].moveMade+', EVAL: '+this.apoints)
+				return this.branches[0];
+			} else {
+				this.apoints = this.branches[this.branches.length-1].apoints;
+				if(log) console.log('DEPTH: '+depth+', CHOICE:'+this.branches[this.branches.length-1].moveMade+', EVAL: '+this.apoints)
+				return this.branches[this.branches.length-1];
+			}
+		}
+	}
+	chooseBestMove(depth=1,log=false){
+		this.branches = [];
+		if(this.branches.length==0){
+			let branch = this.generateBranches(depth,false);
+			if(log) console.log(`Best Move: ${branch.moveMade} (${branch.apoints})`)
+			return branch.moveMade;
+		} 
+	}
+	clone(){
+		let nm = new Mancala;
+		for(let i=0;i<this.spots;i++) nm.spots[i] = this.spots[i];
+		nm.turn = this.turn;
+		return nm;
 	}
 }
 
@@ -131,4 +189,5 @@ exports.print = async function(){
 		if(m.makeMove(n)) break;
 	}
 	m.end();
+	m.makeRandomMove();
 }
