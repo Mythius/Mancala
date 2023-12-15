@@ -25,13 +25,13 @@ class Mancala{
 		if(ix==6&&this.turn==0) return false;
 		if(ix==13&&this.turn==1) return false;
 		if(this.turn==0&&ix<6&&this.spots[ix]==1){
-			let stealIx = (ix+7)%this.spots.length;
+			let stealIx = 12-ix;
 			this.spots[6] += this.spots[ix] + this.spots[stealIx];
 			this.spots[ix] = 0;
 			this.spots[stealIx] = 0;
 		}
 		if(this.turn==1&&ix<13&&ix>6&&this.spots[ix]==1){
-			let stealIx = (ix+7)%this.spots.length;
+			let stealIx = 12-ix;
 			this.spots[13] += this.spots[ix] + this.spots[stealIx];
 			this.spots[ix] = 0;
 			this.spots[stealIx] = 0;
