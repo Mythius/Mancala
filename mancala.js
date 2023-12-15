@@ -190,7 +190,7 @@ const sum=(a,b)=>a+b;
 exports.evaluate = function(pos,d=BOT_DEPTH){
 	let m = new Mancala;
 	m.loadPosition(pos);
-	return chooseBestMove(d);
+	return m.chooseBestMove(d);
 }
 
 exports.print = async function(){
