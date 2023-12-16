@@ -51,18 +51,24 @@ class Spot{
 		if(this.mouseInCircle() || this.qmove){
 			ctx.fillStyle = 'black';
 			ctx.fill();
-			if((mouse.down||this.qmove) && grayout){
+			if((mouse.down||this.qmove==1) && grayout){
 				this.qmove = 0;
-				makeMove(this).then(nextTurn=>{
-					if(nextTurn) {
-						turn = +!turn;
-					}
-					doNextTurn();
-				});
+				setTimeout(()=>{
+					this.status = '';
+					makeMove(this).then(nextTurn=>{
+						if(nextTurn) {
+							turn = +!turn;
+						}
+						doNextTurn();
+					});
+				},turn==1?1000:0);
 			}
 		}
 		if(this.status == 'Capture'){
 			ctx.fillStyle = 'red';
+			ctx.fill();
+		} else if(this.status == 'Selected'){
+			ctx.fillStyle = 'lightblue';
 			ctx.fill();
 		}
 		ctx.stroke();
@@ -152,6 +158,7 @@ function doNextTurn(){
 socket.on('mancala-best',move=>{
 	let ix = move - 1 + turn*7;
 	rotation[ix].qmove = 1;
+	rotation[ix].status = 'Selected';
 });
 
 
@@ -162,7 +169,7 @@ async function makeMove(circle){
 	circle.n = 0;
 	while(n >= 1){
 		ix = nextSpot(ix);
-		await wait(150);
+		await wait(200);
 		rotation[ix].n++
 		n--;
 	}
