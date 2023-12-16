@@ -49,8 +49,9 @@ app.get(/.*/,function(request,response){
 
 http.listen(port,()=>{console.log('Serving Port: '+port)});
 
-mancala.print();
-
 io.on('connection',socket=>{
 	var c = new client(socket);
+	socket.on('mancala-pos',data=>{
+		socket.emit('mancala-best',mancala.evaluate(data));
+	});
 });

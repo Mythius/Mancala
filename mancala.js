@@ -1,5 +1,5 @@
 var c = require('./iostream.js');
-const AUTOPLAY = true;
+const AUTOPLAY = false;
 const BOT_DEPTH = 9;
 class Mancala{
 	constructor(){
@@ -21,7 +21,7 @@ class Mancala{
 		console.log(`|${slot1}|(`+this.spots.slice(7,13).reverse().join(')(')+`)|${slot2}|`)
 		console.log('|  |('+this.spots.slice(0,6).join(')(')+`)|  |`);
 		console.log('Current Eval: '+this.evaluate().diff);
-		if(!this.over) this.chooseBestMove(BOT_DEPTH,true);
+		// if(!this.over) this.chooseBestMove(BOT_DEPTH,true);
 		// console.log(this.spots.join(','));
 		// console.log(this);
 	}
