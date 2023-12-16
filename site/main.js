@@ -5,6 +5,16 @@ const socket = io();
 
 var BOT_PLAY = [1];
 
+Touch.init(callback=>{
+	if(callback.type=='click'){
+		mouse.pos.x = callback.x;
+		mouse.pos.y = callback.y;
+		mouse.down = true;
+		loop();
+		mouse.down = false;
+	}
+});
+
 function loop(){
 	setTimeout(loop,1000/30);
 	ctx.clearRect(-2,-2,canvas.width+2,canvas.height+2);
@@ -16,6 +26,7 @@ let circles = [];
 let rotation = [];
 
 let turn = 0;
+
 
 let counter = 5;
 class Spot{
